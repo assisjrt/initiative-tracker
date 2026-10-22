@@ -68,7 +68,7 @@ export const DEFAULT_SETTINGS: InitiativeTrackerData = {
     },
     hpOverflow: OVERFLOW_TYPE.ignore,
     additiveTemp: false,
-    rpgSystem: "dnd5e",
+    rpgSystem: "pathfinder2e",
     logging: false,
     logFolder: "/",
     resolveTies: RESOLVE_TIES.playerFirst,
@@ -81,7 +81,7 @@ export const DEFAULT_SETTINGS: InitiativeTrackerData = {
         showXP: true,
         sidebarIcon: true
     },
-    rollPlayerInitiatives: RollPlayerInitiativeBehavior.Always
+    rollPlayerInitiatives: RollPlayerInitiativeBehavior.SetToZero
 };
 
 export const DECIMAL_TO_VULGAR_FRACTION: Record<string, string> = {

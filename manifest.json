@@ -1,7 +1,7 @@
 {
     "id": "initiative-tracker-ptbr",
     "name": "Initiative Tracker (PT-BR)",
-    "version": "13.1.0",
+    "version": "13.1.1",
     "minAppVersion": "1.7.2",
     "author": "Jeremy Valentine",
     "description": "Rastreador de iniciativa para RPG de mesa no Obsidian, traduzido para português do Brasil. Fork do Initiative Tracker de Jeremy Valentine.",
