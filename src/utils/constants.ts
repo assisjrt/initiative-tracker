@@ -35,7 +35,7 @@ export const DEFAULT_SETTINGS: InitiativeTrackerData = {
     parties: [],
     defaultParty: null,
     statuses: [...Conditions],
-    unconsciousId: "Unconscious",
+    unconsciousId: "PF2 - Morrendo",
     version: [],
     canUseDiceRoll: false,
     preferStatblockLink: false,

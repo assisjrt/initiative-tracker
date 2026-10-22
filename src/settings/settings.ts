@@ -932,7 +932,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                                 (s) => s.name != status.name
                             );
                         if (this.plugin.data.unconsciousId == status.id) {
-                            this.plugin.data.unconsciousId = "Unconscious";
+                            this.plugin.data.unconsciousId = "PF2 - Morrendo";
                         }
                         await this.plugin.saveSettings();
                         this._displayStatuses(additionalContainer);
