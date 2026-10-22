@@ -1,4 +1,4 @@
-import {
+import { Platform,
     debounce,
     ExtraButtonComponent,
     ItemView,
@@ -46,7 +46,7 @@ export default class TrackerView extends ItemView {
         return INITIATIVE_TRACKER_VIEW;
     }
     getDisplayText() {
-        return "Initiative Tracker";
+        return "Rastreador de iniciativa";
     }
     getIcon() {
         return BASE;
@@ -77,7 +77,10 @@ export default class TrackerView extends ItemView {
             return existing;
         }
 
-        const leaf = this.app.workspace.getLeaf("window");
+        // No iPad não existe janela separada: abre numa aba nova.
+        const leaf = this.app.workspace.getLeaf(
+            Platform.isDesktopApp ? "window" : "tab"
+        );
         await leaf.setViewState({
             type: PLAYER_VIEW_VIEW
         });
@@ -127,7 +130,7 @@ export class CreatureView extends ItemView {
     onload() {
         new ExtraButtonComponent(this.buttonEl)
             .setIcon("cross")
-            .setTooltip("Close Statblock")
+            .setTooltip("Fechar ficha")
             .onClick(async () => {
                 await this.render();
                 this.app.workspace.trigger("initiative-tracker:stop-viewing");
@@ -187,7 +190,7 @@ export class CreatureView extends ItemView {
                     await this.render(creature);
                 } catch (error) {
                     console.error(
-                        "Failed to restore creature view",
+                        "Falha ao restaurar a visualização da criatura",
                         error
                     );
                 }
@@ -226,7 +229,7 @@ export class CreatureView extends ItemView {
         this.statblockEl.empty();
         if (!creature) {
             this.statblockEl.createEl("em", {
-                text: "Select a creature to view it here."
+                text: "Selecione uma criatura para vê-la aqui."
             });
             return;
         }
@@ -246,7 +249,7 @@ export class CreatureView extends ItemView {
             this.addChild(statblock);
         } else {
             this.statblockEl.createEl("em", {
-                text: "Install the TTRPG Statblocks plugin or add a statblock-link to your monster to use this feature!"
+                text: "Instale o plugin Fantasy Statblocks ou adicione um statblock-link à criatura para usar este recurso."
             });
         }
     }

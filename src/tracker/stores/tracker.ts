@@ -1,3 +1,5 @@
+import { rolarFormula } from "src/utils/dados";
+import { MORTO } from "src/utils/conditions";
 import { Creature, getId } from "src/utils/creature";
 import type InitiativeTracker from "../../main";
 import {
@@ -77,10 +79,10 @@ function createTracker() {
                         $logFile.set(_logger.getFile());
                     });
             } else {
-                _logger?.log(`Combat re-started`);
+                _logger?.log(`Combate reiniciado`);
             }
         } else {
-            _logger?.log("Combat stopped");
+            _logger?.log("Combate parado");
         }
         updateAndSave((creatures) => {
             if (creatures.length && !creatures.find((c) => c.active)) {
@@ -159,7 +161,7 @@ function createTracker() {
 
     const logNewInitiative = (creature: Creature) => {
         _logger?.log(
-            `${creature.getName()} initiative changed to ${creature.initiative}`
+            `${creature.getName()} teve a iniciativa alterada para ${creature.initiative}`
         );
     };
 
@@ -213,11 +215,17 @@ function createTracker() {
                 }
                 creature.hp += change.hp;
                 if (_settings.autoStatus && creature.hp <= 0) {
-                    const unc = _settings.statuses.find(
-                        (s) => s.id == _settings.unconsciousId
-                    );
-                    if (unc) creature.addCondition(unc);
+                    // Pathfinder 2e: jogador e aliado ficam inconscientes a 0 PV; as demais criaturas morrem.
+                    if (creature.player || creature.friendly) {
+                        const unc = _settings.statuses.find(
+                            (s) => s.id == _settings.unconsciousId
+                        );
+                        if (unc) creature.addCondition(unc);
+                    } else {
+                        creature.addCondition(MORTO);
+                    }
                 }
+                if (creature.hp > 0) creature.removeCondition(MORTO);
             }
             if (change.max) {
                 creature.current_max = Math.max(
@@ -271,7 +279,7 @@ function createTracker() {
                 creature.hidden = change.hidden!;
                 _logger.log(
                     `${creature.getName()} ${
-                        creature.hidden ? "hidden" : "revealed"
+                        creature.hidden ? "ocultada" : "revelada"
                     }`
                 );
             }
@@ -279,7 +287,7 @@ function createTracker() {
                 creature.enabled = change.enabled!;
                 _logger.log(
                     `${creature.getName()} ${
-                        creature.enabled ? "enabled" : "disabled"
+                        creature.enabled ? "ativada" : "desativada"
                     }`
                 );
             }
@@ -483,10 +491,11 @@ function createTracker() {
                 if (creatures.has(creature)) {
                     creatures.delete(creature);
                 } else {
+                    // Passou, Resistência e Modificador saíram da interface; o dano é sempre o valor digitado.
                     creatures.set(creature, {
-                        saved: evt.getModifierState("Shift"),
-                        resist: evt.getModifierState(modifier),
-                        customMod: evt.getModifierState("Alt") ? "2" : "1"
+                        saved: false,
+                        resist: false,
+                        customMod: "1"
                     });
                 }
                 return creatures;
@@ -648,9 +657,9 @@ function createTracker() {
                                 );
                             }
 
-                            _logger?.log("###", `Round ${round}`);
+                            _logger?.log("###", `Rodada ${round}`);
                         }
-                        _logger?.log("#####", `${next.getName()}'s turn`);
+                        _logger?.log("#####", `Turno de ${next.getName()}`);
                         next.active = true;
                     }
                 }
@@ -691,9 +700,9 @@ function createTracker() {
                                     )
                                 );
                             }
-                            _logger?.log("###", `Round ${round}`);
+                            _logger?.log("###", `Rodada ${round}`);
                         }
-                        _logger?.log("#####", `${prev.getName()}'s turn`);
+                        _logger?.log("#####", `Turno de ${prev.getName()}`);
                         prev.active = true;
                     }
                 }
@@ -708,9 +717,8 @@ function createTracker() {
             ...items: Creature[]
         ) =>
             updateAndSave((creatures) => {
-                if (plugin.canUseDiceRoller && roll) {
-                    setCreatureHP(items, plugin, roll);
-                }
+                // Sem exigir o Dice Roller: setCreatureHP usa o sorteio do fork e respeita creature.rollHP.
+                setCreatureHP(items, plugin, roll);
 
                 creatures.push(...items);
                 const toRoll: Creature[] = [];
@@ -731,7 +739,7 @@ function createTracker() {
                 rollIntiative(plugin, toRoll);
                 _logger?.log(
                     _logger?.join(items.map((c) => c.name)),
-                    "added to the combat."
+                    "entrou no combate."
                 );
                 setNumbers(creatures);
                 return creatures;
@@ -742,7 +750,7 @@ function createTracker() {
 
                 _logger?.log(
                     _logger?.join(items.map((c) => c.name)),
-                    "removed from the combat."
+                    "saiu do combate."
                 );
                 return creatures;
             }),
@@ -816,10 +824,7 @@ function createTracker() {
                     rollIntiative(plugin, creatures);
                 }
                 setNumbers(creatures);
-                if (
-                    plugin.canUseDiceRoller &&
-                    (state?.rollHP ?? plugin.data.rollHP)
-                ) {
+                if (state?.rollHP ?? plugin.data.rollHP) {
                     setCreatureHP(creatures, plugin);
                 }
 
@@ -842,7 +847,7 @@ function createTracker() {
                     creature.enabled = true;
                     creature.status.clear();
                 }
-                _logger?.log("Encounter HP & Statuses reset");
+                _logger?.log("PV e condições do encontro restaurados");
                 return creatures;
             }),
 
@@ -856,31 +861,31 @@ function createTracker() {
                         perCreature.push(
                             `${
                                 message.name
-                            } gained ${message.hp.toString()} temporary HP`
+                            } ganhou ${message.hp.toString()} PV temporários`
                         );
                     } else if (message.max) {
                         if (message.hp < 0) {
                             perCreature.push(
-                                `${message.name} took ${(
+                                `${message.name} sofreu ${(
                                     -1 * message.hp
-                                ).toString()} max HP damage${
-                                    message.unc ? " and died" : ""
+                                ).toString()} de dano nos PV máximos${
+                                    message.unc ? " e morreu" : ""
                                 }`
                             );
                         } else {
                             perCreature.push(
-                                `${message.name} gained ${(
+                                `${message.name} ganhou ${(
                                     -1 * message.hp
-                                ).toString()} max HP`
+                                ).toString()} PV máximos`
                             );
                         }
                     } else if (message.hp < 0) {
                         perCreature.push(
-                            `${message.name} took ${(
+                            `${message.name} sofreu ${(
                                 -1 * message.hp
-                            ).toString()} damage${
+                            ).toString()} de dano${
                                 message.unc
-                                    ? " and was knocked unconscious"
+                                    ? " e ficou inconsciente"
                                     : ""
                             }`
                         );
@@ -888,20 +893,20 @@ function createTracker() {
                         perCreature.push(
                             `${
                                 message.name
-                            } was healed for ${message.hp.toString()} HP`
+                            } recuperou ${message.hp.toString()} PV`
                         );
                     }
                 }
                 if (message.status) {
                     if (perCreature.length) {
-                        perCreature.push("and");
+                        perCreature.push("e");
                     } else {
                         perCreature.push(message.name);
                     }
                     if (message.saved) {
-                        perCreature.push(`saved against ${message.status}`);
+                        perCreature.push(`passou no salvamento contra ${message.status}`);
                     } else {
-                        perCreature.push(`took ${message.status} status`);
+                        perCreature.push(`recebeu a condição ${message.status}`);
                     }
                 }
                 toLog.push(perCreature.join(" "));
@@ -969,8 +974,10 @@ function setCreatureHP(
         if (!creature.rollHP && !rollHP) continue;
         if (!creature.hit_dice?.length) continue;
         let roller = plugin.getRoller(creature.hit_dice);
-        if (!roller) continue;
-        creature.hp = creature.max = creature.current_max = roller.rollSync();
+        // Sem o Dice Roller, usa o sorteio simples do fork.
+        const pv = roller ? roller.rollSync() : rolarFormula(creature.hit_dice);
+        if (pv == null || isNaN(pv)) continue;
+        creature.hp = creature.max = creature.current_max = pv;
     }
 }
 
@@ -1053,10 +1060,10 @@ class Tracker {
                     round: get(this.round)
                 });
             } else {
-                this.tryLog(`Combat re-started`);
+                this.tryLog(`Combate reiniciado`);
             }
         } else {
-            this.tryLog("Combat stopped");
+            this.tryLog("Combate parado");
         }
         this.#updateAndSave((creatures) => {
             if (creatures.length && !creatures.find((c) => c.active)) {
@@ -1123,7 +1130,7 @@ class Tracker {
             if (change.initiative) {
                 creature.initiative = Number(change.initiative);
                 this.tryLog(
-                    `${creature.getName()} initiative changed to ${
+                    `${creature.getName()} teve a iniciativa alterada para ${
                         creature.initiative
                     }`
                 );
@@ -1230,7 +1237,7 @@ class Tracker {
                 creature.hidden = change.hidden!;
                 this.tryLog(
                     `${creature.getName()} ${
-                        creature.hidden ? "hidden" : "revealed"
+                        creature.hidden ? "ocultada" : "revelada"
                     }`
                 );
             }
@@ -1238,7 +1245,7 @@ class Tracker {
                 creature.enabled = change.enabled!;
                 this.tryLog(
                     `${creature.getName()} ${
-                        creature.enabled ? "enabled" : "disabled"
+                        creature.enabled ? "ativada" : "desativada"
                     }`
                 );
             }

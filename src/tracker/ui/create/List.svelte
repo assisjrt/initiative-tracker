@@ -14,7 +14,6 @@
 
     export let adding: Writable<Array<[Creature, number]>>;
     export let editing: Writable<Creature>;
-    export let rollHP: boolean;
 
     const minusIcon = (node: HTMLElement, creature: Creature) => {
         new ExtraButtonComponent(node).setIcon("minus");
@@ -61,7 +60,7 @@
     };
 </script>
 
-<h5 class="list-header">Creatures</h5>
+<h5 class="list-header">Criaturas</h5>
 <div class="initiative-tracker-list">
     {#if $adding.length}
         {#each $adding as [creature, number], index}
@@ -90,8 +89,10 @@
                 </div>
                 <small class="creature-data">
                     <span>
-                        {creature.hp ?? DEFAULT_UNDEFINED}
-                        {#if rollHP}
+                        {creature.rollHP && creature.hit_dice
+                            ? creature.hit_dice
+                            : creature.hp ?? DEFAULT_UNDEFINED}
+                        {#if creature.rollHP}
                             <span use:random />
                         {:else}
                             <span use:heart />
@@ -115,7 +116,7 @@
             </div>
         {/each}
     {:else}
-        <span>Add a creature.</span>
+        <span>Adicione uma criatura.</span>
     {/if}
 </div>
 

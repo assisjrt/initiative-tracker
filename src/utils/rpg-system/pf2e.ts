@@ -48,10 +48,10 @@ const XP_SIMPLE_HAZARD_DIFFERENCES: Record<string, number> = {
 
 const PF2E_DND5E_DIFFICULTY_MAPPING: Record<string, string> = {
     trivial: "trivial",
-    low: "easy",
-    moderate: "medium",
-    severe: "hard",
-    extreme: "deadly"
+    baixo: "easy",
+    moderado: "medium",
+    severo: "hard",
+    extremo: "deadly"
 };
 
 export class Pathfinder2eRpgSystem extends RpgSystem {
@@ -59,10 +59,10 @@ export class Pathfinder2eRpgSystem extends RpgSystem {
 
     override systemDifficulties: [string, string, ...string[]] = [
         "Trivial",
-        "Low",
-        "Moderate",
-        "Severe",
-        "Extreme"
+        "Baixo",
+        "Moderado",
+        "Severo",
+        "Extremo"
     ];
 
     constructor(plugin: InitiativeTracker) {
@@ -99,10 +99,10 @@ export class Pathfinder2eRpgSystem extends RpgSystem {
         const budget = playerLevels.length * 20;
         const encounterBudget: Record<string, number> = {
             trivial: Math.floor(budget * 0.5),
-            low: Math.floor(budget * 0.75),
-            moderate: budget,
-            severe: Math.floor(budget * 1.5),
-            extreme: Math.floor(budget * 2)
+            baixo: Math.floor(budget * 0.75),
+            moderado: budget,
+            severo: Math.floor(budget * 1.5),
+            extremo: Math.floor(budget * 2)
         };
         return Object.entries(encounterBudget)
             .map(([name, value]) => ({
@@ -133,10 +133,12 @@ export class Pathfinder2eRpgSystem extends RpgSystem {
                 (threshold) => `${threshold.displayName}: ${threshold.minValue}`
             )
             .join("\n");
-        const summary = `Encounter is ${displayName}
-    Total XP: ${creatureXp}
-    Threshold
-    ${thresholdSummary}`;
+        const summary = [
+            `Encontro ${displayName}`,
+            `XP total: ${creatureXp}`,
+            "Limites:",
+            thresholdSummary
+        ].join("\n");
 
         return {
             displayName,
@@ -145,8 +147,8 @@ export class Pathfinder2eRpgSystem extends RpgSystem {
                 PF2E_DND5E_DIFFICULTY_MAPPING[displayName.toLowerCase()] ??
                 "trivial",
             value: creatureXp,
-            title: "Total XP",
-            intermediateValues: [{ label: "Total XP", value: creatureXp }]
+            title: "XP total",
+            intermediateValues: [{ label: "XP total", value: creatureXp }]
         };
     }
 }

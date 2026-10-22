@@ -14,7 +14,7 @@
     import type { StackRoller } from "@javalent/dice-roller";
     import { setContext } from "svelte";
 
-    export let name: string = "Encounter";
+    export let name: string = "Encontro";
     export let creatures: Map<Creature, number | string>;
     export let players: string[];
 
@@ -54,7 +54,7 @@
     const open = (node: HTMLElement) => {
         new ExtraButtonComponent(node)
             .setIcon(START_ENCOUNTER)
-            .setTooltip("Begin Encounter")
+            .setTooltip("Iniciar encontro")
             .onClick(async () => {
                 if (!plugin.view) {
                     await plugin.addTrackerView();
@@ -215,7 +215,7 @@
     <td>
         <div class="icons">
             <div use:open />
-            <div use:addButton on:click={add} aria-label="Add to Encounter" />
+            <div use:addButton on:click={add} aria-label="Adicionar ao encontro" />
         </div>
     </td>
 </tr>

@@ -100,3 +100,12 @@ export const Conditions: Condition[] = [
             "An unconscious creature is incapacitated, can’t move or speak, and is unaware of its surroundings.\nThe creature drops whatever it’s holding and falls prone.\nThe creature automatically fails Strength and Dexterity Saving Throws.\nAttack rolls against the creature have advantage.\nAny Attack that hits the creature is a critical hit if the attacker is within 5 feet of the creature."
     }
 ];
+
+/** Aplicada automaticamente a criaturas (não jogadores) que chegam a 0 PV; some se voltarem a ter PV. */
+export const MORTO: Condition = {
+    name: "Morto",
+    id: "morto",
+    description: "Reduzida a 0 PV."
+};
+export const estaMorta = (status: Iterable<Condition>) =>
+    [...status].some((s) => s.id === MORTO.id);

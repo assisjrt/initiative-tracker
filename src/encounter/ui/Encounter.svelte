@@ -14,7 +14,7 @@
 
     setContext("plugin", plugin);
 
-    export let name: string = "Encounter";
+    export let name: string = "Encontro";
     export let creatures: Map<Creature, number | string> = new Map();
     export let players: string[];
     export let party: string = null;
@@ -164,15 +164,15 @@
     <div class="encounter-name">
         <h3 data-heading={name} class="initiative-tracker-name">{name}</h3>
         <div class="icons">
-            <div use:openButton on:click={open} aria-label="Start Encounter" />
-            <div use:addButton on:click={add} aria-label="Add to Encounter" />
+            <div use:openButton on:click={open} aria-label="Iniciar encontro" />
+            <div use:addButton on:click={add} aria-label="Adicionar ao encontro" />
         </div>
     </div>
     <div class="creatures-container">
         {#if !hide.includes("players")}
             {#if players instanceof Array && players.length}
                 <div class="encounter-creatures encounter-players">
-                    <h4>{party ? party : "Players"}</h4>
+                    <h4>{party ? party : "Jogadores"}</h4>
                     <ul>
                         {#each players as player}
                             <li>
@@ -183,18 +183,18 @@
                 </div>
             {:else if !players}
                 <div class="encounter-creatures encounter-players">
-                    <h4>No Players</h4>
+                    <h4>Sem jogadores</h4>
                 </div>
             {/if}
         {/if}
         <div class="encounter-creatures">
             {#if !hide.includes("creatures")}
                 <h4 class="creatures-header">
-                    Creatures
+                    Criaturas
                     {#if allRolling}
                         <span
                             class="has-icon"
-                            aria-label="Rolling for HP"
+                            aria-label="Rolando PV"
                             use:rollEl
                         />
                     {/if}
@@ -224,7 +224,7 @@
                         {/each}
                     </ul>
                 {:else}
-                    <strong>No creatures</strong>
+                    <strong>Sem criaturas</strong>
                 {/if}
             {/if}
         </div>

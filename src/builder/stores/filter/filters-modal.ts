@@ -14,7 +14,7 @@ export class FiltersModal extends Modal {
         this.layout = copy(layout);
     }
     onOpen() {
-        this.titleEl.setText("Edit Filters");
+        this.titleEl.setText("Editar filtros");
         const app = new Filters({
             target: this.contentEl,
             props: {
@@ -39,7 +39,7 @@ export class EditFilterModal extends Modal {
         this.filter = copy(original);
     }
     onOpen(): void {
-        this.titleEl.setText("Edit Filter");
+        this.titleEl.setText("Editar filtro");
         const app = new EditFilter({
             target: this.contentEl,
             props: {

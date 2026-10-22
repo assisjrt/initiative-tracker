@@ -14,15 +14,12 @@
     export let isEditing = false;
     export let creature: Creature = null;
 
-    let rollHP = plugin.data.rollHP;
-
     const adding = writable<Array<[Creature, number]>>([]);
     const editing = writable<Creature>(creature);
 
     const cancel = (node: HTMLElement) => {
         new ButtonComponent(node)
-            .setCta()
-            .setButtonText("Cancel")
+            .setButtonText("Cancelar")
             .onClick(() => {
                 dispatch("close");
             });
@@ -30,7 +27,8 @@
 
     const add = (node: HTMLElement) => {
         new ButtonComponent(node)
-            .setButtonText(isEditing ? "Save" : "Add to Encounter")
+            .setCta()
+            .setButtonText(isEditing ? "Salvar" : "Adicionar ao encontro")
             .onClick(async () => {
                 if (!$adding.length && !isEditing && !Platform.isMobile) return;
                 if (isEditing) {
@@ -50,7 +48,7 @@
                         );
                     });
 
-                    tracker.add(plugin, rollHP, ...creatures);
+                    tracker.add(plugin, false, ...creatures); // Rolar PV é por criatura (creature.rollHP)
                 }
                 if (creature?.player && creature?.path) {
                     const file = await plugin.app.vault.getAbstractFileByPath(
@@ -80,16 +78,7 @@
         <Create {plugin} {editing} {adding} {isEditing} />
         {#if !isEditing && !Platform.isMobile}
             <div class="creator-list">
-                <List {adding} {editing} {rollHP} />
-                <div>
-                    <input
-                        type="checkbox"
-                        name="roll-hp"
-                        id="roll-hp"
-                        bind:checked={rollHP}
-                    />
-                    <label for="roll-hp">Roll for HP</label>
-                </div>
+                <List {adding} {editing} />
             </div>
         {/if}
     </div>
@@ -107,7 +96,7 @@
         margin-top: 1rem;
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
+        gap: 1rem;
     }
     .initiative-tracker-creator.editing {
         grid-template-columns: 1fr;
@@ -123,6 +112,8 @@
         cursor: not-allowed;
     }
     .creator-list {
+        border-left: 1px solid var(--background-modifier-border);
+        padding-left: 1rem;
         display: flex;
         justify-content: space-between;
         flex-flow: column nowrap;

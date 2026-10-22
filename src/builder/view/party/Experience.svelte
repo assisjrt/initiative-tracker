@@ -54,7 +54,7 @@
             <div class="xp">
                 <div class="encounter-difficulty">
                     <div class="difficulty container">
-                        <strong class="header">Difficulty</strong>
+                        <strong class="header">Dificuldade</strong>
                         <span>{difficulty.displayName}</span>
                     </div>
                     {#each difficulty.intermediateValues as intermediate}

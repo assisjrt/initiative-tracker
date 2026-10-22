@@ -32,18 +32,18 @@
     const settingsMenu = (evt: CustomEvent<MouseEvent>) => {
         const menu = new Menu();
         menu.addItem((item) => {
-            item.setTitle("Edit Headers").onClick(() => {
+            item.setTitle("Editar colunas").onClick(() => {
                 openHeadersModal();
             });
         })
             .addItem((item) => {
-                item.setTitle("Edit Filters").onClick(() => {
+                item.setTitle("Editar filtros").onClick(() => {
                     openFiltersModal();
                 });
             })
             .addSeparator()
             .addItem((item) => {
-                item.setTitle("Export").onClick(() => {
+                item.setTitle("Exportar").onClick(() => {
                     const link = createEl("a");
                     const file = new Blob(
                         [JSON.stringify(plugin.data.builder)],
@@ -58,7 +58,7 @@
                 });
             })
             .addItem((item) => {
-                item.setTitle("Import").onClick(() => {
+                item.setTitle("Importar").onClick(() => {
                     //validate;
                     const ajv = new Ajv();
 
@@ -85,7 +85,7 @@
                                     json = JSON.parse(event.target.result);
                                 } catch (e) {
                                     new Notice(
-                                        "There was an issue parsing the file as JSON."
+                                        "Não foi possível ler o arquivo como JSON."
                                     );
                                 }
                                 if (validate(json)) {
@@ -97,7 +97,7 @@
                                         ...validate.errors.map((e) => e.message)
                                     );
                                     new Notice(
-                                        "This file does not match the builder state schema."
+                                        "O arquivo não segue o formato do construtor de encontros."
                                     );
                                 }
                             }

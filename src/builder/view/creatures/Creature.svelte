@@ -88,14 +88,14 @@
                     <div
                         class="contains-icon"
                         use:baby
-                        aria-label={"This creature is significantly under the average party level and might not contribute much to the fight."}
+                        aria-label={"Esta criatura está bem abaixo do nível médio do grupo e talvez pouco influencie no combate."}
                     />
                 {/if}
                 {#if challenge}
                     <div
                         class="contains-icon"
                         use:skull
-                        aria-label={"This creature is significantly over the average party level and might prove a challenge."}
+                        aria-label={"Esta criatura está bem acima do nível médio do grupo e pode ser um desafio."}
                     />
                 {/if}
             </div>

@@ -56,7 +56,7 @@ export class API {
         rollHP: boolean = this.plugin.data.rollHP
     ) {
         if (!creatures || !Array.isArray(creatures) || !creatures.length) {
-            throw new Error("Creatures must be an array.");
+            throw new Error("As criaturas precisam estar em uma lista.");
         }
         this.#tracker.add(
             this.plugin,

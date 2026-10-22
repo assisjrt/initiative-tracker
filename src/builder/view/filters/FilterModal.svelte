@@ -8,12 +8,12 @@
         .filter((s) => s)
         .sort();
     const all = (node: HTMLElement) => {
-        new ButtonComponent(node).setButtonText("Select All").onClick(() => {
+        new ButtonComponent(node).setButtonText("Selecionar tudo").onClick(() => {
             $sources = [];
         });
     };
     const none = (node: HTMLElement) => {
-        new ButtonComponent(node).setButtonText("Deselect All").onClick(() => {
+        new ButtonComponent(node).setButtonText("Desmarcar tudo").onClick(() => {
             $sources = [...allSources];
         });
     };

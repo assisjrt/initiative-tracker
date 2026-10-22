@@ -23,13 +23,27 @@
     const hamburgerIcon = (node: HTMLElement) => {
         const hamburger = new ExtraButtonComponent(node)
             .setIcon("vertical-three-dots")
-            .setTooltip("Actions");
+            .setTooltip("Ações");
+        // Tocar de novo no botão fecha o menu. O Obsidian já fecha o menu no toque fora dele,
+        // antes do clique chegar aqui; por isso o menu fechado há instantes não é reaberto.
+        let menuAberto: Menu = null;
+        let fechadoEm = 0;
         hamburger.extraSettingsEl.onclick = (evt) => {
             evt.stopPropagation();
+            if (menuAberto) {
+                menuAberto.hide();
+                return;
+            }
+            if (Date.now() - fechadoEm < 400) return;
             const menu = new Menu();
+            menuAberto = menu;
+            menu.onHide(() => {
+                menuAberto = null;
+                fechadoEm = Date.now();
+            });
             menu.addItem((item) => {
                 item.setIcon(HP)
-                    .setTitle("Set Health/Status")
+                    .setTitle("Definir PV/condições")
                     .onClick((e: MouseEvent) => {
                         tracker.updateTarget.set("hp");
                         tracker.setUpdate(creature, e);
@@ -38,7 +52,7 @@
             if (creature.current_ac != creature.ac) {
                 menu.addItem((item) => {
                     item.setIcon(HP)
-                        .setTitle("Reset AC")
+                        .setTitle("Restaurar CA")
                         .onClick((e: MouseEvent) => {
                             creature.current_ac = creature.ac;
                             tracker.updateAndSave();
@@ -47,7 +61,7 @@
             }
             menu.addItem((item) => {
                 item.setIcon("pencil")
-                    .setTitle("Edit")
+                    .setTitle("Editar")
                     .onClick(() => {
                         dispatch("edit", creature);
                     });
@@ -55,7 +69,7 @@
             if (creature.hidden) {
                 menu.addItem((item) => {
                     item.setIcon("eye")
-                        .setTitle("Show")
+                        .setTitle("Mostrar")
                         .onClick(() => {
                             tracker.updateCreatures({
                                 creature,
@@ -66,7 +80,7 @@
             } else {
                 menu.addItem((item) => {
                     item.setIcon(HIDDEN)
-                        .setTitle("Hide")
+                        .setTitle("Ocultar")
                         .onClick(() => {
                             tracker.updateCreatures({
                                 creature,
@@ -78,7 +92,7 @@
             if (creature.enabled) {
                 menu.addItem((item) => {
                     item.setIcon(DISABLE)
-                        .setTitle("Disable")
+                        .setTitle("Desativar")
                         .onClick(() => {
                             tracker.updateCreatures({
                                 creature,
@@ -89,7 +103,7 @@
             } else {
                 menu.addItem((item) => {
                     item.setIcon(ENABLE)
-                        .setTitle("Enable")
+                        .setTitle("Ativar")
                         .onClick(() => {
                             tracker.updateCreatures({
                                 creature,
@@ -100,12 +114,14 @@
             }
             menu.addItem((item) => {
                 item.setIcon(REMOVE)
-                    .setTitle("Remove")
+                    .setTitle("Remover")
                     .onClick(() => {
                         tracker.remove(creature);
                     });
             });
-            menu.showAtPosition(evt);
+            // Posiciona pelo botão, não pelo evento: no iPad o evento vem sem coordenadas e o menu ia para o canto da tela.
+            const r = hamburger.extraSettingsEl.getBoundingClientRect();
+            menu.showAtPosition({ x: r.left, y: r.bottom });
         };
     };
 </script>

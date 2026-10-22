@@ -3,16 +3,14 @@
     import { fade } from "svelte/transition";
     import { SyncLoader } from "svelte-loading-spinners";
 
-    import { AC, FRIENDLY, HP, INITIATIVE } from "src/utils";
+    import { AC, FRIENDLY, INITIATIVE } from "src/utils";
     import type { Creature } from "src/utils/creature";
     import { createEventDispatcher } from "svelte";
 
     import { tracker } from "../stores/tracker";
+    import { estaMorta } from "src/utils/conditions";
     const { state, ordered, data } = tracker;
 
-    const hpIcon = (node: HTMLElement) => {
-        setIcon(node, HP);
-    };
     const acIcon = (node: HTMLElement) => {
         setIcon(node, AC);
     };
@@ -22,10 +20,10 @@
 
     const getHpStatus = (hp: number, max: number) => {
         if (!hp) return "";
-        if (hp <= 0) return "Defeated";
-        if (hp < max / 2) return "Bloodied";
-        if (hp < max) return "Hurt";
-        return "Healthy";
+        if (hp <= 0) return "Derrotado";
+        if (hp < max / 2) return "Muito ferido";
+        if (hp < max) return "Ferido";
+        return "Saudável";
     };
 
     const amIActive = (creature: Creature) => {
@@ -52,9 +50,9 @@
 <table class="initiative-tracker-table" transition:fade>
     <thead class="tracker-table-header">
         <th style="width:5%"><strong use:iniIcon /></th>
-        <th class="left" style="width:30%"><strong>Name</strong></th>
-        <th style="width:15%" class="center"><strong use:hpIcon /></th>
-        <th><strong> Statuses </strong></th>
+        <th class="left" style="width:30%"><strong>Nome</strong></th>
+        <th style="width:15%" class="center"><strong>PV</strong></th>
+        <th><strong> Condições </strong></th>
     </thead>
     <tbody>
         {#each activeAndVisible as creature (creature.id)}
@@ -65,10 +63,10 @@
                         <div
                             class="contains-icon"
                             use:friendIcon
-                            aria-label={`This creature is an ally.`}
+                            aria-label={`Esta criatura é aliada.`}
                         />
                     {/if}
-                    {name(creature)}
+                    <span class:morta={estaMorta(creature.status)}>{name(creature)}</span>
                 </td>
                 <td
                     class:center={true}
@@ -89,6 +87,10 @@
 </table>
 
 <style scoped>
+    .morta {
+        text-decoration: line-through;
+        opacity: 0.6;
+    }
     .full-center {
         width: 100%;
         height: 100%;

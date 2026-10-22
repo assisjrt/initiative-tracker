@@ -8,7 +8,7 @@ import App from "./player/PlayerView.svelte";
 export default class PlayerView extends ItemView {
     _app: App;
     getDisplayText(): string {
-        return "Player View";
+        return "Visão dos jogadores";
     }
     getViewType(): string {
         return PLAYER_VIEW_VIEW;

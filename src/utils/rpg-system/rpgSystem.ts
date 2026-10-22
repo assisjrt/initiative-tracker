@@ -35,7 +35,7 @@ export abstract class RpgSystem {
       displayName: DEFAULT_UNDEFINED,
       cssClass: "",
       value: 0,
-      title: "Total XP",
+      title: "XP total",
       summary: DEFAULT_UNDEFINED,
       intermediateValues: []
     };

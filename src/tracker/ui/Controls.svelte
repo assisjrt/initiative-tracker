@@ -21,33 +21,33 @@
     import { createEventDispatcher, getContext } from "svelte";
     import type InitiativeTracker from "src/main";
     import { tracker } from "../stores/tracker";
+    import { confirmWithModal } from "./create/modal";
 
     const { state, data, logFile, sort, party } = tracker;
 
-    const desktop = Platform.isDesktop;
 
     const playButton = (node: HTMLElement) => {
         new ExtraButtonComponent(node)
             .setIcon(PLAY)
-            .setTooltip("Play")
+            .setTooltip("Iniciar")
             .onClick(() => tracker.setState(true));
     };
     const stopButton = (node: HTMLElement) => {
         new ExtraButtonComponent(node)
             .setIcon(STOP)
-            .setTooltip("Stop")
+            .setTooltip("Parar")
             .onClick(() => tracker.setState(false));
     };
     const nextButton = (node: HTMLElement) => {
         new ExtraButtonComponent(node)
             .setIcon(FORWARD)
-            .setTooltip("Next")
+            .setTooltip("Próximo")
             .onClick(() => tracker.goToNext());
     };
     const prevButton = (node: HTMLElement) => {
         new ExtraButtonComponent(node)
             .setIcon(BACKWARD)
-            .setTooltip("Previous")
+            .setTooltip("Anterior")
             .onClick(() => tracker.goToPrevious());
     };
 
@@ -59,30 +59,50 @@
         const menu = new Menu();
         menu.addItem((item) => {
             item.setIcon(NEW)
-                .setTitle("New Encounter")
-                .onClick(() => tracker.new(plugin));
+                .setTitle("Novo encontro")
+                .onClick(async () => {
+                    if (
+                        !(await confirmWithModal(
+                            plugin.app,
+                            "Iniciar um novo encontro? O encontro atual será descartado."
+                        ))
+                    )
+                        return;
+                    tracker.new(plugin);
+                });
         });
         menu.addItem((item) => {
             item.setIcon(NEW)
-                .setTitle("Add Creatures")
+                .setTitle("Adicionar criaturas")
                 .onClick(() => dispatch("add-creatures"));
         });
         menu.addItem((item) => {
             item.setIcon(REDO)
-                .setTitle("Reset HP / Status")
-                .onClick(() => tracker.reset());
+                .setTitle("Restaurar PV e condições")
+                .onClick(async () => {
+                    if (
+                        await confirmWithModal(
+                            plugin.app,
+                            "Restaurar PV e condições? Todas as criaturas voltam aos PV máximos e à CA original, perdem todas as condições e as desativadas voltam a ficar ativas."
+                        )
+                    )
+                        tracker.reset();
+                });
         });
         menu.addItem((item) => {
             item.setIcon(DICE)
-                .setTitle("Re-roll Initiatives")
-                .onClick(() => tracker.roll(plugin));
+                .setTitle("Rolar iniciativas de novo")
+                .onClick(async () => {
+                    if (await confirmWithModal(plugin.app, "Rolar as iniciativas de novo? A ordem atual será substituída."))
+                        tracker.roll(plugin);
+                });
         });
         menu.addItem((item) => {
             item.setIcon(GROUP)
                 .setTitle(
                     plugin.data.condense
-                        ? "Expand Creatures"
-                        : "Group Creatures"
+                        ? "Expandir criaturas"
+                        : "Agrupar criaturas"
                 )
                 .onClick(async () => {
                     plugin.data.condense = !plugin.data.condense;
@@ -90,20 +110,20 @@
                     item.setIcon(plugin.data.condense ? EXPAND : GROUP);
                     item.setTitle(
                         plugin.data.condense
-                            ? "Expand Creatures"
-                            : "Group Creatures"
+                            ? "Expandir criaturas"
+                            : "Agrupar criaturas"
                     );
                 });
         });
         menu.addItem((item) => {
-            item.setTitle($sort ? "Sort Ascending" : "Sort Descending").onClick(
+            item.setTitle($sort ? "Ordem crescente" : "Ordem decrescente").onClick(
                 async () => {
                     plugin.data.descending = !plugin.data.descending;
                     await plugin.saveSettings();
                     item.setTitle(
                         plugin.data.descending
-                            ? "Sort Ascending"
-                            : "Sort Descending"
+                            ? "Ordem crescente"
+                            : "Ordem decrescente"
                     );
                 }
             );
@@ -114,11 +134,11 @@
             if (Platform.isMobile) {
                 menu.addItem((item) => {
                     /* const partyMenu =  */ item.setIcon("switch")
-                        .setTitle("Switch Party")
+                        .setTitle("Trocar grupo")
                         .setIsLabel(true);
                 });
                 menu.addItem((item) => {
-                    item.setTitle("None")
+                    item.setTitle("Nenhum")
                         .onClick(() => {
                             tracker.setParty("", plugin);
                         })
@@ -137,10 +157,10 @@
                 menu.addItem((item) => {
                     const partyMenu = item
                         .setIcon("switch")
-                        .setTitle("Switch Party")
+                        .setTitle("Trocar grupo")
                         .setSubmenu();
                     partyMenu.addItem((item) => {
-                        item.setTitle("None")
+                        item.setTitle("Nenhum")
                             .onClick(() => {
                                 tracker.setParty("", plugin);
                             })
@@ -161,11 +181,11 @@
         if (Platform.isMobile) {
             menu.addItem((item) => {
                 item.setIcon("dice")
-                    .setTitle("Party Rolling Behavior")
+                    .setTitle("Iniciativa do grupo")
                     .setIsLabel(true);
             });
             menu.addItem((item) => {
-                item.setTitle("Always Roll")
+                item.setTitle("Sempre rolar")
                     .onClick(async () => {
                         plugin.data.rollPlayerInitiatives =
                             RollPlayerInitiativeBehavior.Always;
@@ -177,7 +197,7 @@
                     );
             });
             menu.addItem((item) => {
-                item.setTitle("Never Roll")
+                item.setTitle("Nunca rolar")
                     .onClick(async () => {
                         plugin.data.rollPlayerInitiatives =
                             RollPlayerInitiativeBehavior.Never;
@@ -189,7 +209,7 @@
                     );
             });
             menu.addItem((item) => {
-                item.setTitle("Set to Zero")
+                item.setTitle("Definir como zero")
                     .onClick(async () => {
                         plugin.data.rollPlayerInitiatives =
                             RollPlayerInitiativeBehavior.SetToZero;
@@ -204,11 +224,11 @@
             menu.addItem((item) => {
                 const partyMenu = item
                     .setIcon("dice")
-                    .setTitle("Party Rolling Behavior")
+                    .setTitle("Iniciativa do grupo")
                     .setSubmenu();
 
                 partyMenu.addItem((item) => {
-                    item.setTitle("Always Roll")
+                    item.setTitle("Sempre rolar")
                         .onClick(async () => {
                             plugin.data.rollPlayerInitiatives =
                                 RollPlayerInitiativeBehavior.Always;
@@ -220,7 +240,7 @@
                         );
                 });
                 partyMenu.addItem((item) => {
-                    item.setTitle("Never Roll")
+                    item.setTitle("Nunca rolar")
                         .onClick(async () => {
                             plugin.data.rollPlayerInitiatives =
                                 RollPlayerInitiativeBehavior.Never;
@@ -232,7 +252,7 @@
                         );
                 });
                 partyMenu.addItem((item) => {
-                    item.setTitle("Set to Zero")
+                    item.setTitle("Definir como zero")
                         .onClick(async () => {
                             plugin.data.rollPlayerInitiatives =
                                 RollPlayerInitiativeBehavior.SetToZero;
@@ -251,7 +271,7 @@
             menu.addItem((item) => {
                 const load = item
                     .setIcon("open-elsewhere-glyph")
-                    .setTitle("Load Encounter")
+                    .setTitle("Carregar encontro")
                     .setDisabled(
                         Object.keys(plugin.data.encounters).length == 0
                     )
@@ -272,7 +292,7 @@
         } else {
             menu.addItem((item) => {
                 item.setIcon("open-elsewhere-glyph")
-                    .setTitle("Load Encounter")
+                    .setTitle("Carregar encontro")
                     .setIsLabel(true);
             });
             for (const encounter of Object.keys(plugin.data.encounters)) {
@@ -285,7 +305,7 @@
         }
         menu.addItem((item) => {
             item.setIcon(SAVE)
-                .setTitle("Save Encounter")
+                .setTitle("Salvar encontro")
                 .onClick(() => {
                     dispatch("save");
                 });
@@ -325,18 +345,17 @@
         {#if $logFile}
             <div
                 use:logFileButton
-                aria-label="Open Log File"
+                aria-label="Abrir registro"
                 on:click={openLogFile}
             />
         {/if}
-        {#if desktop}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <div
-                use:playerView
-                aria-label="Open Player View"
-                on:click={(evt) => dispatch("player-view")}
-            />
-        {/if}
+        <!-- disponível também no iPad (abre numa aba em vez de janela) -->
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <div
+            use:playerView
+            aria-label="Abrir visão dos jogadores"
+            on:click={(evt) => dispatch("player-view")}
+        />
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div use:menuIcon on:click={(evt) => open(evt)} />
     </div>

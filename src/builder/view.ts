@@ -49,7 +49,7 @@ export default class BuilderView extends ItemView {
         ) {
             this.contentEl.addClasses(["waiting-for-bestiary", "is-loading"]);
             const loading = this.contentEl.createEl("p", {
-                text: "Waiting for Fantasy Statblocks Bestiary..."
+                text: "Aguardando o bestiário do Fantasy Statblocks..."
             });
             const unload = window["FantasyStatblocks"].onResolved(() => {
                 this.contentEl.removeClasses([
@@ -78,7 +78,7 @@ export default class BuilderView extends ItemView {
         this.ui?.$destroy();
     }
     getDisplayText(): string {
-        return "Encounter Builder";
+        return "Construtor de encontros";
     }
     getIcon(): string {
         return BUILDER_VIEW;

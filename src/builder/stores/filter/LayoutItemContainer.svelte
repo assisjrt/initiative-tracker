@@ -69,7 +69,7 @@
                         {filter.fields.join(", ")}
                     {:else}
                         <div use:warn class="warning-icon icon" />
-                        <span class="warning-icon">No fields</span>
+                        <span class="warning-icon">Sem campos</span>
                     {/if}
                 </em>
             </small>

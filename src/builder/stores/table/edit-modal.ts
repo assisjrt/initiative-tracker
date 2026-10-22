@@ -9,32 +9,32 @@ export class EditModal extends Modal {
     editor: EditorView;
     public canceled = false;
     onOpen() {
-        this.titleEl.setText(this.editing ? "Edit Header" : "Create Header");
+        this.titleEl.setText(this.editing ? "Editar coluna" : "Criar coluna");
         this.display();
     }
     display() {
         this.contentEl.empty();
-        new Setting(this.contentEl).setName("Display Text").addText((t) =>
+        new Setting(this.contentEl).setName("Texto exibido").addText((t) =>
             t.setValue(this.header.text).onChange((v) => {
                 this.header.text = v;
             })
         );
         new Setting(this.contentEl)
-            .setName("Linked Property")
+            .setName("Propriedade vinculada")
             .addText((t) =>
                 t
                     .setValue(this.header.field)
                     .onChange((v) => (this.header.field = v))
             );
         new Setting(this.contentEl)
-            .setName("Sort Type")
+            .setName("Tipo de ordenação")
             .setDesc(
-                "This determines how the field is sorted. Use the appropriate type for the data type of the field."
+                "Define como o campo é ordenado. Use o tipo adequado aos dados do campo."
             )
             .addDropdown((t) => {
-                t.addOption(`${SortFunctions.LOCAL_COMPARE}`, "String");
-                t.addOption(`${SortFunctions.CONVERT_FRACTION}`, "Number");
-                t.addOption(`${SortFunctions.CUSTOM}`, "Custom");
+                t.addOption(`${SortFunctions.LOCAL_COMPARE}`, "Texto");
+                t.addOption(`${SortFunctions.CONVERT_FRACTION}`, "Número");
+                t.addOption(`${SortFunctions.CUSTOM}`, "Personalizado");
                 t.setValue(`${this.header.type}`).onChange((v) => {
                     this.header.type = Number(v);
                     if (this.header.type == SortFunctions.CUSTOM) {
@@ -47,23 +47,23 @@ export class EditModal extends Modal {
             });
         if ("func" in this.header) {
             new Setting(this.contentEl)
-                .setName("Custom Sorting Function")
+                .setName("Função de ordenação personalizada")
                 .setDesc(
                     createFragment((e) => {
                         e.createSpan({
-                            text: "Specify a custom sorting JavaScript function."
+                            text: "Informe uma função JavaScript de ordenação."
                         });
                         e.createEl("br");
                         e.createEl("br");
 
                         e.createSpan({
-                            text: "This function receives two monster objects, "
+                            text: "A função recebe dois objetos de criatura, "
                         });
                         e.createEl("code", { text: "a" });
-                        e.createSpan({ text: " and " });
+                        e.createSpan({ text: " e " });
                         e.createEl("code", { text: "b" });
                         e.createSpan({
-                            text: ", and must return a number. The number determines sort order."
+                            text: ", e deve retornar um número, que define a ordem."
                         });
                     })
                 );
@@ -81,7 +81,7 @@ export class EditModal extends Modal {
             );
         }
         new Setting(this.contentEl).addButton((b) => {
-            b.setButtonText("Cancel")
+            b.setButtonText("Cancelar")
                 .setCta()
                 .onClick(() => {
                     this.canceled = true;

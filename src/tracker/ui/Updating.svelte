@@ -1,7 +1,7 @@
 <script lang="ts">
     import { ExtraButtonComponent, TextComponent, setIcon } from "obsidian";
     import type InitiativeTracker from "src/main";
-    import { AC, HP, REMOVE, TAG } from "src/utils";
+    import { REMOVE, TAG } from "src/utils";
     import { ConditionSuggestionModal } from "src/utils/suggester";
     import { getContext } from "svelte";
     import { getId } from "src/utils/creature";
@@ -13,11 +13,11 @@
     import type { Condition } from "src/types/creatures";
 
     const plugin = getContext<InitiativeTracker>("plugin");
-    const hpIcon = (node: HTMLElement) => {
-        setIcon(node, HP);
-    };
-    const acIcon = (node: HTMLElement) => {
-        setIcon(node, AC);
+    // Ícones "i": toque ou clique mostra a explicação (o balão do mouse não existe no iPad).
+    let ajudaPV = false;
+    let ajudaCondicao = false;
+    const infoIcon = (node: HTMLElement) => {
+        setIcon(node, "info");
     };
     const tagIcon = (node: HTMLElement) => {
         setIcon(node, TAG);
@@ -28,12 +28,6 @@
     };
     const removeIcon = (node: HTMLElement) => {
         setIcon(node, REMOVE);
-    };
-    const checkIcon = (node: HTMLElement) => {
-        setIcon(node, "check");
-    };
-    const cancelIcon = (node: HTMLElement) => {
-        setIcon(node, "cross-in-box");
     };
     let damage: string = "";
     let ac: string = "";
@@ -113,23 +107,26 @@
 
 {#if $updating.size}
     <div class="updating-container">
+        <div class="selecionadas">
+            {#each [...$updating.keys()] as creature}
+                <strong>
+                    {creature.name + (creature.number ? " " + creature.number : "")}
+                </strong>
+            {/each}
+        </div>
         {#if $updateTarget == "hp"}
             <div class="updating-hp">
                 <!-- svelte-ignore a11y-autofocus -->
                 <div class="hp-status">
-                    {#if plugin.data.beginnerTips}
-                        <small class="label">
-                            Apply damage, (-)healing, (t)temp HP, or (m)max HP
-                        </small>
-                    {/if}
                     <div class="input">
-                        <tag
-                            use:hpIcon
-                            aria-label="Apply damage, (-)healing, (t)temp HP, or (m)max HP"
-                            style="margin: 0 0.2rem 0 0.7rem"
-                        />
+                        <strong
+                            class="rotulo-campo"
+                            aria-label="Número = dano (12). Com - na frente = cura (-8). Com t = PV temporários (t5). Com m = dano nos PV máximos (m10; m-10 aumenta)."
+                            >PV</strong
+                        >
                         <input
                             type="text"
+                            class="campo-pv"
                             bind:value={damage}
                             on:keydown={function (evt) {
                                 if (evt.key == "Tab") {
@@ -150,36 +147,61 @@
                             }}
                             use:init={"hp"}
                         />
-                    </div>
-                </div>
-                <div class="hp-status">
-                    {#if plugin.data.beginnerTips}
-                        <small class="label">
-                            Apply status effect to creatures that fail their
-                            saving throw
-                        </small>
-                    {/if}
-                    <div class="input-status">
-                        <div class="input">
-                            <div
-                                use:tagIcon
-                                aria-label="Apply status effect to creatures that fail their saving throw"
-                                style="margin: 0 0.2rem 0 0.7rem"
-                            />
-                            <div use:conditionDiv />
-                        </div>
-                        <div
-                            use:addStatusIcon
-                            aria-label="Add Status"
-                            on:click={addStatus}
-                            style="margin: 0rem 0.2rem 0rem 0rem"
+                        <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+                        <span
+                            class="info-ajuda"
+                            use:infoIcon
+                            aria-label="Como preencher"
+                            on:pointerup={() => (ajudaPV = !ajudaPV)}
                         />
                     </div>
+                    {#if ajudaPV}
+                        <div class="ajuda">
+                            <div><strong>12</strong>: causa 12 de dano</div>
+                            <div><strong>-8</strong>: cura 8 PV</div>
+                            <div><strong>t5</strong>: dá 5 PV temporários</div>
+                            <div><strong>m10</strong>: tira 10 dos PV máximos (m-10 aumenta)</div>
+                        </div>
+                    {/if}
+                </div>
+                <div class="hp-status">
+                    <div class="input">
+                        <div
+                            class="rotulo-campo"
+                            use:tagIcon
+                            aria-label="Aplicar condição às criaturas selecionadas"
+                        />
+                        <div class="campo-condicao" use:conditionDiv />
+                        <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+                        <span
+                            class="info-ajuda"
+                            use:infoIcon
+                            aria-label="Como aplicar condições"
+                            on:pointerup={() => (ajudaCondicao = !ajudaCondicao)}
+                        />
+                        <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+                        <span
+                            class="info-ajuda"
+                            use:addStatusIcon
+                            aria-label="Adicionar condição"
+                            on:pointerup={addStatus}
+                        />
+                    </div>
+                    {#if ajudaCondicao}
+                        <div class="ajuda">
+                            Digite a condição e escolha na lista; ela já entra na
+                            relação abaixo. Repita para juntar mais de uma. Ao clicar
+                            em Aplicar, todas vão para as criaturas selecionadas.
+                            <br />O <strong>+</strong> serve para uma condição que não
+                            está cadastrada: digite o nome e toque nele para incluí-la
+                            avulsa, sem descrição.
+                        </div>
+                    {/if}
                     {#if $statuses.length}
                         <div class="status-list">
                             <div
                                 use:removeIcon
-                                aria-label="Clear status list"
+                                aria-label="Limpar lista de condições"
                                 style="margin:0.2rem 0.2rem 0rem 0.7rem;cursor:pointer;"
                                 on:click={function (evt) {
                                     $statuses = [];
@@ -203,14 +225,14 @@
         {:else}
             <div class="hp-status">
                 {#if plugin.data.beginnerTips}
-                    <small class="label"> Set AC </small>
+                    <small class="label"> Definir CA </small>
                 {/if}
                 <div class="input">
-                    <tag
-                        use:acIcon
-                        aria-label="Set or (+/-)modify the AC of creatures"
-                        style="margin: 0 0.2rem 0 0.7rem"
-                    />
+                    <strong
+                        class="rotulo-campo"
+                        aria-label="Definir ou alterar (+/-) a CA das criaturas"
+                        >CA</strong
+                    >
                     <input
                         type="text"
                         bind:value={ac}
@@ -233,101 +255,43 @@
             </div>
         {/if}
     </div>
-    <div style="margin: 0.5rem">
-        <table class="updating-creature-table">
-            <thead class="updating-creature-table-header">
-                <th style="width:100%" class="left">Name</th>
-                {#if $updateTarget == "hp"}
-                    <th style="padding:0 0.2rem" class="center">Saved</th>
-                    <th style="padding:0 0.2rem" class="center">Resist</th>
-                    <th style="padding:0 0.2rem" class="center">Modifier</th>
-                    <th />
-                {/if}
-            </thead>
-            <tbody>
-                {#each [...$updating.entries()] as [creature, update], i}
-                    <tr class="updating-creature-table-row">
-                        <td>
-                            <span>
-                                {creature.name +
-                                    (creature.number
-                                        ? " " + creature.number
-                                        : "")}
-                            </span>
-                        </td>
-                        {#if $updateTarget == "hp"}
-                            <td class="center">
-                                <input
-                                    type="checkbox"
-                                    checked={update.saved}
-                                    on:click={function (evt) {
-                                        update.saved = !update.saved;
-                                    }}
-                                />
-                            </td>
-                            <td class="center">
-                                <input
-                                    type="checkbox"
-                                    checked={update.resist}
-                                    on:click={function (evt) {
-                                        update.resist = !update.resist;
-                                    }}
-                                />
-                            </td>
-                            <td class="center">
-                                <input
-                                    type="number"
-                                    class="center"
-                                    style="width:90%; height:80%; padding:0;"
-                                    bind:value={update.customMod}
-                                    on:keydown={function (evt) {
-                                        if (evt.key === "Escape") {
-                                            this.value = "1";
-                                            return;
-                                        }
-                                        if (evt.key === "Enter") {
-                                            evt.preventDefault();
-                                            return;
-                                        }
-                                    }}
-                                />
-                            </td>
-                        {/if}
-                        <td
-                            use:removeIcon
-                            on:click={function (evt) {
-                                tracker.setUpdate(creature, evt);
-                                if (!$updating.size) {
-                                    $statuses = [];
-                                    modal = null;
-                                }
-                            }}
-                            style="cursor:pointer"
-                        />
-                    </tr>
-                {/each}
-            </tbody>
-        </table>
-    </div>
     <div class="updating-buttons">
-        <span
-            use:checkIcon
-            on:click={() => performUpdate(true)}
-            style="cursor:pointer"
-            aria-label="Apply"
-        />
-        <span
-            use:cancelIcon
-            on:click={() => performUpdate(false)}
-            style="cursor:pointer"
-            aria-label="Cancel"
-        />
+        <button on:click={() => performUpdate(false)}>Cancelar</button>
+        <button class="mod-cta" on:click={() => performUpdate(true)}>Aplicar</button>
     </div>
 {:else}
     <div on:load={() => performUpdate(false)} />
 {/if}
 
 <style scoped>
+    /* PV e condição: rótulos na mesma coluna e campos da mesma largura */
+    .campo-pv,
+    .campo-condicao :global(input) {
+        width: 12rem;
+    }
+    .info-ajuda {
+        display: inline-flex;
+        cursor: pointer;
+        color: var(--text-muted);
+    }
+    .info-ajuda:hover {
+        color: var(--text-normal);
+    }
+    .ajuda {
+        margin: 0.25rem 0.7rem 0;
+        padding: 0.5rem;
+        border-radius: var(--radius-s);
+        background-color: var(--background-secondary);
+        font-size: var(--font-ui-small);
+        color: var(--text-muted);
+    }
+    .rotulo-campo {
+        margin: 0 0.2rem 0 0.7rem;
+        width: 1.6rem;
+        display: flex;
+        justify-content: center;
+        text-align: center;
+    }
     .input {
         display: flex;
         align-items: center;
@@ -336,14 +300,7 @@
     :global(.is-disabled) {
         cursor: not-allowed;
     }
-    .input-status {
-        display: flex;
-        justify-content: space-between;
-    }
-    .input > div,
-    .input-status > div,
-    td:has(> svg),
-    th:has(> svg) {
+    .input > div {
         display: flex;
         align-items: center;
     }
@@ -357,21 +314,27 @@
         column-gap: 0.25rem;
         margin: 0 2rem 0 0.5rem;
     }
-    .left {
-        text-align: left;
-    }
-    .center {
-        text-align: center;
-    }
     .updating-hp {
         display: flex;
         flex-flow: column;
         gap: 0.5rem;
     }
+    .selecionadas {
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: center;
+        text-align: center;
+        gap: 0.25rem;
+        margin: 0 0.5rem 0.25rem;
+    }
     .updating-container {
         display: flex;
         flex-flow: column nowrap;
         gap: 0.5rem;
+        /* separa o painel de edição da lista de combatentes */
+        border-top: 1px solid var(--background-modifier-border);
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
     }
     .hp-status {
         display: flex;
@@ -380,10 +343,7 @@
     .updating-buttons {
         display: flex;
         justify-content: flex-end;
-        gap: 1rem;
-        margin-right: 0.7rem;
-    }
-    td > input {
-        margin: 0;
+        gap: 0.5rem;
+        margin: 0.5rem 0.7rem 0 0;
     }
 </style>

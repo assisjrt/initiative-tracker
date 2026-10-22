@@ -150,12 +150,12 @@
         <span
             use:openButton
             on:click|stopPropagation={open}
-            aria-label="Begin Encounter"
+            aria-label="Iniciar encontro"
         />
         <span
             use:addButton
             on:click|stopPropagation={add}
-            aria-label="Add to Encounter"
+            aria-label="Adicionar ao encontro"
         />
     </span>
 </span>

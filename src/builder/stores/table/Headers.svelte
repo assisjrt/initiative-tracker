@@ -123,7 +123,7 @@
             );
     };
     const add = (node: HTMLElement) => {
-        new Setting(node).setName("Add Header").addExtraButton((b) =>
+        new Setting(node).setName("Adicionar coluna").addExtraButton((b) =>
             b.setIcon("plus-circle").onClick(async () => {
                 const state = await openModal();
                 if (
@@ -143,8 +143,8 @@
     };
     const reset = (node: HTMLElement) => {
         new Setting(node)
-            .setName("Reset Headers")
-            .setDesc("Reset table headers to defaults.")
+            .setName("Restaurar colunas")
+            .setDesc("Volta as colunas da tabela ao padrão.")
             .addExtraButton((b) =>
                 b.setIcon("reset").onClick(() => {
                     dispatch("reset");
@@ -152,7 +152,7 @@
             );
     };
     const cancel = (node: HTMLElement) => {
-        new ButtonComponent(node).setButtonText("Cancel").setCta();
+        new ButtonComponent(node).setButtonText("Cancelar").setCta();
     };
 </script>
 

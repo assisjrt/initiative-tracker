@@ -11,7 +11,7 @@ export class HeadersModal extends Modal {
         super(app);
     }
     onOpen() {
-        this.titleEl.setText("Edit Headers");
+        this.titleEl.setText("Editar colunas");
         const app = new Headers({
             target: this.contentEl,
             props: {

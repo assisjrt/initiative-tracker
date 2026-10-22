@@ -34,17 +34,17 @@
 <table class="initiative-tracker encounter-table">
     <thead>
         <tr>
-            <th>Name</th>
+            <th>Nome</th>
             {#if headers.includes("creatures")}
-                <th>Creatures</th>
+                <th>Criaturas</th>
             {/if}
             {#if headers.includes("players")}
-                <th>Players</th>
+                <th>Jogadores</th>
             {/if}
             {#if plugin.data.displayDifficulty}
-                <th>Difficulty</th>
+                <th>Dificuldade</th>
             {/if}
-            <th>Launch</th>
+            <th>Iniciar</th>
         </tr>
     </thead>
     <tbody>

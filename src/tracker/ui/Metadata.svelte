@@ -26,14 +26,14 @@
     {#if $dif}
         <Difficulty />
     {/if}
-    {#if $party}
-        <h4 class="initiave-tracker-party">{$party}</h4>
+    {#if !$dif}
+        <div class="initiave-tracker-party">Grupo: <strong>{$party || "Nenhum"}</strong></div>
     {/if}
     {#if $state}
         <div class="initiative-tracker-round-container">
             <small>
                 <em>
-                    Round {$round}
+                    Rodada {$round}
                 </em>
             </small>
         </div>
@@ -43,7 +43,8 @@
 <style scoped>
     .initiave-tracker-party {
         padding: 0 0.5rem;
-        margin: 0;
+        margin: 0 0 0.25rem;
+        text-align: center;
     }
     .initiative-tracker-name-container {
         display: flex;

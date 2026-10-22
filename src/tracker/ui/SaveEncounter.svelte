@@ -55,7 +55,7 @@
 
 <div class="saving-container">
     <div class="saving-encounter">
-        <span>Save encounter as:</span>
+        <span>Salvar encontro como:</span>
         <!-- svelte-ignore a11y-autofocus -->
         <input type="text" bind:value={encounterName} on:input={checkSave} />
     </div>

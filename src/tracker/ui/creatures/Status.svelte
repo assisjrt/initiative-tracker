@@ -32,16 +32,16 @@
             <div
                 class="icon"
                 use:minus
-                on:click={() => {
+                on:pointerup={() => {
                     status.amount--;
                     if (status.amount <= 0) dispatch("remove");
                 }}
             />
             <span>{status.amount}</span>
-            <div class="icon" use:plus on:click={() => status.amount++} />
+            <div class="icon" use:plus on:pointerup={() => status.amount++} />
         </div>
     {/if}
-    <div use:deleteIcon on:click={() => dispatch("remove")} />
+    <div use:deleteIcon on:pointerup={() => dispatch("remove")} />
 </div>
 
 <style>

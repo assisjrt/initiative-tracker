@@ -21,7 +21,7 @@
     const { players } = encounter;
 
     const plugin = getContext("plugin");
-    let name = writable("Encounter");
+    let name = writable("Encontro");
     let tempName = writable("");
     let updatingName = writable(false);
 
@@ -94,7 +94,7 @@
                 startIcon.setTooltip("");
             } else {
                 startIcon.setDisabled(false);
-                startIcon.setTooltip("Start Encounter");
+                startIcon.setTooltip("Iniciar encontro");
             }
         }
     }
@@ -108,12 +108,12 @@
     $: saveButton?.setDisabled($encounter.size == 0);
     const save = () => {
         const modal = new Modal(app);
-        modal.titleEl.setText("Save Encounter");
+        modal.titleEl.setText("Salvar encontro");
         let encName: string =
-            $name != "Encounter"
+            $name != "Encontro"
                 ? $name
-                : `Encounter ${Object.keys(plugin.data.encounters).length}`;
-        new Setting(modal.contentEl).setName("Encounter Name").addText((t) => {
+                : `Encontro ${Object.keys(plugin.data.encounters).length}`;
+        new Setting(modal.contentEl).setName("Nome do encontro").addText((t) => {
             t.setPlaceholder(encName).onChange((v) => (encName = v));
         });
 
@@ -140,23 +140,23 @@
                     timestamp: Date.now()
                 });
                 plugin.saveSettings();
-                new Notice(`Encounter "${encName}" saved.`);
+                new Notice(`Encontro "${encName}" salvo.`);
                 modal.close();
             } catch (e) {
-                new Notice("There was an issue saving the encounter.");
+                new Notice("Ocorreu um erro ao salvar o encontro.");
             }
         };
         new Setting(modal.contentEl).addButton((b) =>
-            b.setButtonText("Save").onClick(() => {
+            b.setButtonText("Salvar").onClick(() => {
                 if (encName in plugin.data.encounters) {
                     const confirm = new Modal(app);
-                    confirm.titleEl.setText("Are you sure?");
+                    confirm.titleEl.setText("Tem certeza?");
                     confirm.contentEl.createEl("p", {
-                        text: "This will overwrite an existing encounter. Are you sure?"
+                        text: "Isto vai substituir um encontro existente. Tem certeza?"
                     });
                     new Setting(confirm.contentEl)
                         .addButton((b) =>
-                            b.setButtonText("Overwrite").onClick(() => {
+                            b.setButtonText("Substituir").onClick(() => {
                                 confirm.close();
                                 saveEncounter();
                             })
@@ -189,7 +189,7 @@
                 exportIcon.setTooltip("");
             } else {
                 exportIcon.setDisabled(false);
-                exportIcon.setTooltip("Copy Encounter Block");
+                exportIcon.setTooltip("Copiar bloco do encontro");
             }
         }
     }
@@ -198,7 +198,7 @@
     const loadIcon = (node: HTMLElement) => {
         loadButton = new ExtraButtonComponent(node)
             .setIcon("upload")
-            .setTooltip("Load Encounter");
+            .setTooltip("Carregar encontro");
     };
     $: loadButton?.setDisabled(Object.keys(plugin.data.encounters).length == 0);
     const load = (evt: MouseEvent) => {
@@ -229,7 +229,7 @@
     const clear = (node: HTMLElement) => {
         new ExtraButtonComponent(node)
             .setIcon("eraser")
-            .setTooltip("Clear Encounter");
+            .setTooltip("Limpar encontro");
     };
     const copy = async () => {
         const enc: {
@@ -256,11 +256,11 @@
             await navigator.clipboard.writeText(
                 `\`\`\`encounter\n${stringifyYaml(enc)}\`\`\``
             );
-            new Notice("Encounter saved to clipboard");
+            new Notice("Encontro copiado");
         } catch (e) {
             console.error(e);
             new Notice(
-                "Could not save encounter, please check console for errors"
+                "Não foi possível copiar o encontro. Veja os erros no console."
             );
         }
     };
@@ -288,13 +288,13 @@
             use:clear
             on:click={() => {
                 encounter.empty();
-                $name = "Encounter";
+                $name = "Encontro";
             }}
         />
     </div>
 </div>
 {#if !items.length}
-    <span>Add some creatures to get started!</span>
+    <span>Adicione criaturas para começar.</span>
 {:else}
     <div class="encounter-creatures">
         {#each items as [creature, count]}

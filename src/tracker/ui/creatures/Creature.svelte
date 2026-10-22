@@ -7,6 +7,7 @@
     import { Platform, setIcon } from "obsidian";
     import { tracker } from "../../stores/tracker";
     import { createEventDispatcher } from "svelte";
+    import { estaMorta } from "src/utils/conditions";
 
     const dispatch = createEventDispatcher();
     const { updateTarget } = tracker;
@@ -21,6 +22,9 @@
     };
     const friendlyIcon = (div: HTMLElement) => {
         setIcon(div, FRIENDLY);
+    };
+    const infoIcon = (div: HTMLElement) => {
+        setIcon(div, "info");
     };
 
     const hoverParent: { hoverPopover: null } = { hoverPopover: null };
@@ -48,6 +52,14 @@
         }, 1000);
     };
 
+    // Clique no nome ou nos PV: seleciona a criatura no painel de PV e condições.
+    const selecionarPV = (evt: MouseEvent) => {
+        const prev = $updateTarget;
+        $updateTarget = "hp";
+        if (prev == "ac") return;
+        tracker.setUpdate(creature, evt);
+    };
+
     const cancelHover = (evt: MouseEvent) => {
         clearTimeout(hoverTimeout);
     };
@@ -69,14 +81,18 @@
 </td>
 <td class="name-container">
     <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div
-        class="name-holder"
-        on:click|stopPropagation={(evt) => {
-            dispatch("open-combatant", { creature, newLeaf: evt.ctrlKey || evt.metaKey });
-        }}
-        on:mouseenter={tryHover}
-        on:mouseleave={cancelHover}
-    >
+    <div class="name-holder" on:click|stopPropagation={selecionarPV}>
+        <!-- a ficha abre só pelo ícone "i" (antes abria clicando no nome ou na linha) -->
+        <div
+            class="centered-icon info-icon"
+            use:infoIcon
+            aria-label="Abrir ficha"
+            on:click|stopPropagation={(evt) => {
+                dispatch("open-combatant", { creature, newLeaf: evt.ctrlKey || evt.metaKey });
+            }}
+            on:mouseenter={tryHover}
+            on:mouseleave={cancelHover}
+        />
         {#if creature.hidden}
             <div class="centered-icon" use:hiddenIcon />
         {/if}
@@ -86,7 +102,7 @@
         {#if creature.player}
             <strong class="name player">{creature.name}</strong>
         {:else}
-            <span class="name">{name()}</span>
+            <span class="name" class:morta={estaMorta(statuses)}>{name()}</span>
         {/if}
     </div>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -110,12 +126,7 @@
 <td
     class="center hp-container creature-adder"
     class:mobile={Platform.isMobile}
-    on:click|stopPropagation={(evt) => {
-        const prev = $updateTarget;
-        $updateTarget = "hp";
-        if (prev == "ac") return;
-        tracker.setUpdate(creature, evt);
-    }}
+    on:click|stopPropagation={selecionarPV}
 >
     <div>
         {@html creature.hpDisplay}
@@ -152,6 +163,7 @@
 
 <style scoped>
     .name-holder {
+        cursor: pointer;
         display: flex;
         align-items: center;
         gap: 0.25rem;
@@ -160,6 +172,17 @@
     .centered-icon {
         display: flex;
         align-items: center;
+    }
+    .morta {
+        text-decoration: line-through;
+        color: var(--text-muted);
+    }
+    .info-icon {
+        cursor: pointer;
+        color: var(--text-muted);
+    }
+    .info-icon:hover {
+        color: var(--text-normal);
     }
     .name {
         display: block;

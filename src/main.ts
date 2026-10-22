@@ -53,7 +53,7 @@ export default class InitiativeTracker extends Plugin {
         if (window.DiceRoller != null) {
             if (!window.DiceRoller.getRoller) {
                 new Notice(
-                    "Please update Dice Roller to the latest version to use with Initiative Tracker."
+                    "Atualize o Dice Roller para a versão mais recente para usar com o Initiative Tracker."
                 );
             } else {
                 return true;
@@ -64,7 +64,7 @@ export default class InitiativeTracker extends Plugin {
 
     getInitiativeValue(modifier: number | number[] = 0): number {
         const defaultIfNoResult =
-            Math.floor(Math.random() * 19 + 1) +
+            Math.floor(Math.random() * 20) + 1 + // 1d20; o original rolava de 1 a 19
             [modifier].flat().reduce((a, b) => a + b, 0);
         if (!this.canUseDiceRoller) {
             return defaultIfNoResult;
@@ -247,7 +247,7 @@ export default class InitiativeTracker extends Plugin {
         );
 
         this.registerHoverLinkSource(INITIATIVE_TRACKER_VIEW, {
-            display: "Initiative Tracker",
+            display: "Rastreador de iniciativa",
             defaultMod: false
         });
 
@@ -262,7 +262,7 @@ export default class InitiativeTracker extends Plugin {
             ) {
                 el.addClasses(["waiting-for-bestiary", "is-loading"]);
                 const loading = el.createEl("p", {
-                    text: "Waiting for Fantasy Statblocks Bestiary..."
+                    text: "Aguardando o bestiário do Fantasy Statblocks..."
                 });
                 const unload = window["FantasyStatblocks"].onResolved(() => {
                     el.removeClasses(["waiting-for-bestiary", "is-loading"]);
@@ -285,7 +285,7 @@ export default class InitiativeTracker extends Plugin {
                 ) {
                     el.addClasses(["waiting-for-bestiary", "is-loading"]);
                     const loading = el.createEl("p", {
-                        text: "Waiting for Fantasy Statblocks Bestiary..."
+                        text: "Aguardando o bestiário do Fantasy Statblocks..."
                     });
                     const unload = window["FantasyStatblocks"].onResolved(
                         () => {
@@ -342,7 +342,7 @@ export default class InitiativeTracker extends Plugin {
                         !parsed.creatures ||
                         !parsed.creatures.size
                     ) {
-                        target.setText("No creatures found.");
+                        target.setText("Nenhuma criatura encontrada.");
                         return;
                     }
                     new EncounterLine({
@@ -372,7 +372,7 @@ export default class InitiativeTracker extends Plugin {
                         "loader-2"
                     );
                     loading.createEl("em", {
-                        text: "Loading Bestiary..."
+                        text: "Carregando bestiário..."
                     });
                     const unload = window["FantasyStatblocks"].onResolved(
                         () => {
@@ -490,7 +490,7 @@ export default class InitiativeTracker extends Plugin {
     addCommands() {
         this.addCommand({
             id: "open-tracker",
-            name: "Open Initiative Tracker",
+            name: "Abrir rastreador de iniciativa",
             checkCallback: (checking) => {
                 if (!this.view) {
                     if (!checking) {
@@ -502,7 +502,7 @@ export default class InitiativeTracker extends Plugin {
         });
         this.addCommand({
             id: "open-builder",
-            name: "Open Encounter Builder",
+            name: "Abrir construtor de encontros",
             checkCallback: (checking) => {
                 if (!this.builder) {
                     if (!checking) {
@@ -515,7 +515,7 @@ export default class InitiativeTracker extends Plugin {
 
         this.addCommand({
             id: "toggle-encounter",
-            name: "Toggle Encounter",
+            name: "Iniciar ou parar encontro",
             checkCallback: (checking) => {
                 const view = this.view;
                 if (view) {
@@ -529,7 +529,7 @@ export default class InitiativeTracker extends Plugin {
 
         this.addCommand({
             id: "next-combatant",
-            name: "Next Combatant",
+            name: "Próximo combatente",
             checkCallback: (checking) => {
                 const view = this.view;
                 if (view && tracker.getState()) {
@@ -543,7 +543,7 @@ export default class InitiativeTracker extends Plugin {
 
         this.addCommand({
             id: "prev-combatant",
-            name: "Previous Combatant",
+            name: "Combatente anterior",
             checkCallback: (checking) => {
                 const view = this.view;
                 if (view && tracker.getState()) {
@@ -601,12 +601,12 @@ export default class InitiativeTracker extends Plugin {
                             this.app.workspace.revealLeaf(view.leaf);
                         } else {
                             new Notice(
-                                "Could not find the Initiative Tracker. Try reloading the note!"
+                                "Não foi possível encontrar o rastreador de iniciativa. Recarregue a nota."
                             );
                         }
                     } catch (e) {
                         new Notice(
-                            "There was an issue launching the encounter.\n\n" +
+                            "Ocorreu um erro ao iniciar o encontro.\n\n" +
                                 (e as Error).message
                         );
                         console.error(e);
@@ -759,7 +759,7 @@ export default class InitiativeTracker extends Plugin {
         if (this.data.builder.sidebarIcon) {
             this._builderIcon = this.addRibbonIcon(
                 BUILDER_VIEW,
-                "Initiative Tracker Encounter Builder",
+                "Construtor de encontros do Initiative Tracker",
                 () => {
                     this.addBuilderView();
                 }

@@ -3,13 +3,14 @@
 
     import CreatureTemplate from "./Creature.svelte";
 
-    import { AC, DICE, HP, META_MODIFIER } from "src/utils";
+    import { DICE, META_MODIFIER } from "src/utils";
     import { Creature, getId } from "src/utils/creature";
     import { createEventDispatcher } from "svelte";
     import { dndzone } from "svelte-dnd-action";
     import { flip } from "svelte/animate";
 
     import { tracker } from "../../stores/tracker";
+    import { confirmWithModal } from "../create/modal";
     import type InitiativeTracker from "src/main";
     import { getContext } from "svelte";
 
@@ -22,12 +23,6 @@
 
     const dispatch = createEventDispatcher();
 
-    const hpIcon = (node: HTMLElement) => {
-        setIcon(node, HP);
-    };
-    const acIcon = (node: HTMLElement) => {
-        setIcon(node, AC);
-    };
     const flipDurationMs = 300;
     function handleDndConsider(
         e: CustomEvent<GenericDndEvent<{ creature: Creature; id: string }[]>>
@@ -71,12 +66,15 @@
             <td
                 style="width: 10%;"
                 use:diceIcon
-                aria-label="Re-Roll Initiatives"
-                on:click={(evt) => tracker.roll(plugin)}
+                aria-label="Rolar iniciativas de novo"
+                on:click={async () => {
+                    if (await confirmWithModal(plugin.app, "Rolar as iniciativas de novo? A ordem atual será substituída."))
+                        tracker.roll(plugin);
+                }}
             />
-            <th class="left" style="width:55%">Name</th>
-            <th style="width:15%" use:hpIcon class="center" />
-            <th style="width:15%" use:acIcon class="center" />
+            <th class="left" style="width:55%">Nome</th>
+            <th style="width:15%" class="center">PV</th>
+            <th style="width:15%" class="center">CA</th>
             <th style="width:5%" />
         </thead>
         <tbody
@@ -102,10 +100,6 @@
                     data-hp-percent={Math.round(
                         ((creature.hp ?? 0) / creature.max) * 100
                     )}
-                    on:click={(e) => {
-                        dispatch("open-combatant", { creature, newLeaf: e.ctrlKey || e.metaKey });
-                        e.stopPropagation();
-                    }}
                 >
                     <CreatureTemplate
                         {creature}
@@ -119,8 +113,8 @@
         </tbody>
     {:else}
         <div class="no-creatures">
-            <p>Add a creature to get started!</p>
-            <small>Players may be created in settings.</small>
+            <p>Adicione uma criatura para começar.</p>
+            <small>Os jogadores são criados nas configurações.</small>
         </div>
     {/if}
 </table>

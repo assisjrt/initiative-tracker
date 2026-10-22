@@ -64,10 +64,10 @@ export default class Logger {
                 `${this.folder}/${Date.now()} - ${param.name ?? "Combat"}.md`
             );
             await this.log(
-                `**Combat started ${new Date().toLocaleString()}**\n\n`
+                `**Combate iniciado em ${new Date().toLocaleString()}**\n\n`
             );
-            await this.log("## Players");
-            await this.log("| Player | Initiative | HP | Statuses |");
+            await this.log("## Jogadores");
+            await this.log("| Jogador | Iniciativa | PV | Condições |");
             await this.log("| --- | :-: | :-: | :-: |");
             for (const player of param.players.sort(
                 (a, b) => b.initiative - a.initiative
@@ -90,8 +90,8 @@ export default class Logger {
                     "|"
                 );
             }
-            await this.log("## Creatures");
-            await this.log("| Creature | Initiative  | HP | Statuses |");
+            await this.log("## Criaturas");
+            await this.log("| Criatura | Iniciativa | PV | Condições |");
             await this.log("| --- | :-: | :-: | :-: |");
             for (const creature of param.creatures.sort(
                 (a, b) => b.initiative - a.initiative
@@ -115,10 +115,10 @@ export default class Logger {
                 );
             }
 
-            await this.log("\n\n## Combat Log");
-            await this.log("\n### Round 1");
+            await this.log("\n\n## Registro do combate");
+            await this.log("\n### Rodada 1");
             await this.log(
-                `\n##### ${tracker.getOrderedCreatures()[0].getName()}'s turn`
+                `\n##### Turno de ${tracker.getOrderedCreatures()[0].getName()}`
             );
         }
     }
@@ -130,7 +130,7 @@ export default class Logger {
         }
         await this.vault.append(this.file, `${msg.join(" ")}\n`);
     }
-    public join(strings: string[], joiner: string = "and") {
+    public join(strings: string[], joiner: string = "e") {
         if (strings.length == 1) {
             return strings[0];
         }
@@ -145,64 +145,64 @@ export default class Logger {
             if (message.hp) {
                 if (message.temp) {
                     perCreature.push(
-                        `${message.name} gained ${(
+                        `${message.name} ganhou ${(
                             -1 * message.hp
-                        ).toString()} temporary HP`
+                        ).toString()} PV temporários`
                     );
                 } else if (message.max) {
                     if (message.hp < 0) {
                         perCreature.push(
-                            `${message.name} took ${(
+                            `${message.name} sofreu ${(
                                 -1 * message.hp
-                            ).toString()} max HP damage${
-                                message.unc ? " and died" : ""
+                            ).toString()} de dano nos PV máximos${
+                                message.unc ? " e morreu" : ""
                             }`
                         );
                     } else {
                         perCreature.push(
                             `${
                                 message.name
-                            } gained ${message.hp.toString()} max HP`
+                            } ganhou ${message.hp.toString()} PV máximos`
                         );
                     }
                 } else if (message.hp < 0) {
                     perCreature.push(
-                        `${message.name} took ${(
+                        `${message.name} sofreu ${(
                             -1 * message.hp
-                        ).toString()} damage${
-                            message.unc ? " and was knocked unconscious" : ""
+                        ).toString()} de dano${
+                            message.unc ? " e ficou inconsciente" : ""
                         }`
                     );
                 } else if (message.hp > 0) {
                     perCreature.push(
                         `${
                             message.name
-                        } was healed for ${message.hp.toString()} HP`
+                        } recuperou ${message.hp.toString()} PV`
                     );
                 }
             }
             if (message.ac) {
                 if (perCreature.length && !message.status) {
-                    perCreature.push("and");
+                    perCreature.push("e");
                 } else if (perCreature.length) {
                     perCreature.push(",");
                 }
 
                 if (message.ac_add) {
                     perCreature.push(
-                        `${message.name} added ${message.ac} to AC`
+                        `${message.name} somou ${message.ac} à CA`
                     );
                 } else {
                     perCreature.push(
-                        `${message.name} AC set to ${
-                            message.ac ? message.ac : "be blank"
+                        `${message.name} teve a CA definida como ${
+                            message.ac ? message.ac : "vazia"
                         }`
                     );
                 }
             }
             if (message.status) {
                 if (perCreature.length) {
-                    perCreature.push("and");
+                    perCreature.push("e");
                 } else {
                     perCreature.push(message.name);
                 }
@@ -218,14 +218,14 @@ export default class Logger {
                     status = [message.status[0]];
                 }
                 if (message.saved) {
-                    perCreature.push(`saved against ${status.join(" and ")}`);
+                    perCreature.push(`passou no salvamento contra ${status.join(" e ")}`);
                 } else {
-                    perCreature.push(`took ${status.join(" and ")} status`);
+                    perCreature.push(`recebeu a condição ${status.join(" e ")}`);
                 }
             }
             if (message.remove_status) {
                 if (perCreature.length) {
-                    perCreature.push("and");
+                    perCreature.push("e");
                 } else {
                     perCreature.push(message.name);
                 }
@@ -240,7 +240,7 @@ export default class Logger {
                 } else {
                     status = [message.remove_status[0]];
                 }
-                perCreature.push(`relieved of ${status.join(" and ")} status`);
+                perCreature.push(`perdeu a condição ${status.join(" e ")}`);
             }
             toLog.push(perCreature.join(" "));
         }
