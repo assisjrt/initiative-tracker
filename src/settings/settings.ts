@@ -949,51 +949,73 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
         const summary = containerEl.createEl("summary");
         new Setting(summary).setHeading().setName("Integrações com plugins");
         summary.createDiv("collapser").createDiv("handle");
-        if (!this.plugin.canUseStatBlocks) {
-            this.plugin.data.sync = false;
-            await this.plugin.saveSettings();
-        }
+        // Só informativo: a opção "sincronizar" do original era salva mas nunca lida;
+        // as criaturas do Fantasy Statblocks sempre aparecem na busca.
         new Setting(containerEl)
-            .setName("Sincronizar criaturas do Fantasy Statblocks")
+            .setName("Fantasy Statblocks")
             .setDesc(
                 createFragment((e) => {
                     e.createSpan({
-                        text: "As criaturas salvas no plugin Fantasy Statblocks ficam disponíveis para uso."
+                        text: "Fornece as criaturas do bestiário para a busca no campo Criatura e as fichas abertas pelo ícone \"i\" do rastreador."
                     });
-                    if (!this.plugin.canUseStatBlocks) {
-                        e.createEl("br");
-                        e.createEl("br");
+                    e.createEl("br");
+                    e.createEl("br");
+                    if (this.plugin.canUseStatBlocks) {
                         e.createSpan({
-                            text: "Instale e ative o plugin "
+                            attr: { style: "color: var(--text-success);" },
+                            text: "Instalado e ativo."
+                        });
+                    } else {
+                        e.createSpan({
+                            attr: { style: "color: var(--text-error);" },
+                            text: "Não está ativo. Instale e ative o plugin "
                         });
                         e.createEl("a", {
                             text: "Fantasy Statblocks",
                             href: "obsidian://show-plugin?id=obsidian-5e-statblocks"
                         });
                         e.createSpan({
+                            attr: { style: "color: var(--text-error);" },
                             text: " para usar as criaturas dele."
                         });
                     }
                 })
-            )
-            .addToggle((t) => {
-                t.setDisabled(!this.plugin.canUseStatBlocks).setValue(
-                    this.plugin.data.sync
-                );
-                t.onChange(async (v) => {
-                    this.plugin.data.sync = v;
-                    await this.plugin.saveSettings();
-                    this._displayIntegrations(containerEl);
-                });
-            });
-        if (this.plugin.data.sync) {
-            const synced = new Setting(containerEl).setDesc(
-                `${this.plugin.bestiary.length} creatures synced.`
             );
-            synced.settingEl.addClass("initiative-synced");
-            setIcon(synced.nameEl, "check-in-circle");
-            synced.nameEl.appendChild(createSpan({ text: "Sincronizado" }));
-        }
+
+        // Só informativo: o Initiative Tracker não usa os ícones, mas as fichas abertas pelo "i" dependem dele.
+        const iconesAtivos = (this.app as any).plugins?.enabledPlugins?.has(
+            "pf2-action-icons"
+        );
+        new Setting(containerEl)
+            .setName("Pathfinder 2E Action Icons")
+            .setDesc(
+                createFragment((e) => {
+                    e.createSpan({
+                        text: "Mostra os símbolos de ação (uma, duas e três ações, reação e ação livre) nas fichas do Fantasy Statblocks abertas pelo ícone \"i\" do rastreador."
+                    });
+                    e.createEl("br");
+                    e.createEl("br");
+                    if (iconesAtivos) {
+                        e.createSpan({
+                            attr: { style: "color: var(--text-success);" },
+                            text: "Instalado e ativo."
+                        });
+                    } else {
+                        e.createSpan({
+                            attr: { style: "color: var(--text-error);" },
+                            text: "Não está ativo. Instale e ative o plugin "
+                        });
+                        e.createEl("a", {
+                            text: "Pathfinder 2E Action Icons",
+                            href: "obsidian://show-plugin?id=pf2-action-icons"
+                        });
+                        e.createSpan({
+                            attr: { style: "color: var(--text-error);" },
+                            text: " para ver os símbolos nas fichas."
+                        });
+                    }
+                })
+            );
 
         new Setting(containerEl)
             .setName("Fórmula de iniciativa")
