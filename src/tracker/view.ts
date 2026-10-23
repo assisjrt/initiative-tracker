@@ -242,7 +242,7 @@ export class CreatureView extends ItemView {
             await this.renderEmbed(creature.getStatblockLink());
         } else if (this.plugin.canUseStatBlocks) {
             const statblock = window.FantasyStatblocks.render(
-                creature.creature,
+                this.dadosDaFicha(creature),
                 this.statblockEl,
                 creature.display
             );
@@ -252,6 +252,15 @@ export class CreatureView extends ItemView {
                 text: "Instale o plugin Fantasy Statblocks ou adicione um statblock-link à criatura para usar este recurso."
             });
         }
+    }
+
+    /** Jogador: dados atuais das configurações (Percepção, CD de Percepção e idiomas); a cópia do encontro fica desatualizada. */
+    dadosDaFicha(creature: Creature) {
+        if (!creature.player) return creature.creature;
+        const jogador = this.plugin.data.players.find(
+            (p) => p.name === creature.name
+        );
+        return jogador ? { ...creature.creature, ...jogador } : creature.creature;
     }
 
     async renderEmbed(embedLink: string) {

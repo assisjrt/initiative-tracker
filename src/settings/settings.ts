@@ -1222,6 +1222,51 @@ class NewPlayerModal extends Modal {
                     this.player.modifier = Number(v);
                 });
             });
+        const numeroOpcional = (
+            nome: string,
+            desc: string,
+            campo: "perception" | "perceptionDC"
+        ): InputValidate => {
+            let input: InputValidate;
+            new Setting(contentEl)
+                .setName(nome)
+                .setDesc(desc)
+                .addText((t) => {
+                    input = {
+                        input: t.inputEl,
+                        validate: (i) => {
+                            const error = isNaN(Number(i.value));
+                            if (error) i.addClass("has-error");
+                            return error;
+                        }
+                    };
+                    t.setValue(`${this.player[campo] ?? ""}`);
+                    t.onChange((v) => {
+                        t.inputEl.removeClass("has-error");
+                        this.player[campo] = v.trim() === "" ? undefined : Number(v);
+                    });
+                });
+            return input;
+        };
+        const percepcaoInput = numeroOpcional(
+            "Percepção",
+            "Modificador de Percepção.",
+            "perception"
+        );
+        const cdPercepcaoInput = numeroOpcional(
+            "CD de Percepção",
+            "CD para criaturas que tentam enganar ou se esconder do jogador.",
+            "perceptionDC"
+        );
+        new Setting(contentEl)
+            .setName("Idiomas")
+            .setDesc("Separados por vírgula.")
+            .addText((t) => {
+                t.setValue(this.player.languages ?? "");
+                t.onChange((v) => {
+                    this.player.languages = v.trim() || undefined;
+                });
+            });
 
         let footerEl = contentEl.createDiv();
         let footerButtons = new Setting(footerEl);
@@ -1232,7 +1277,9 @@ class NewPlayerModal extends Modal {
                     let error = this.validateInputs(
                         nameInput,
                         hpInput,
-                        modInput
+                        modInput,
+                        percepcaoInput,
+                        cdPercepcaoInput
                     );
                     if (error) {
                         new Notice("Corrija os erros antes de salvar.");
@@ -1253,7 +1300,13 @@ class NewPlayerModal extends Modal {
             return b;
         });
 
-        this.validateInputs(nameInput, hpInput, modInput);
+        this.validateInputs(
+            nameInput,
+            hpInput,
+            modInput,
+            percepcaoInput,
+            cdPercepcaoInput
+        );
     }
     validateInputs(...inputs: InputValidate[]) {
         let error = false;

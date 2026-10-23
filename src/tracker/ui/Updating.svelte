@@ -13,6 +13,19 @@
     import type { Condition } from "src/types/creatures";
 
     const plugin = getContext<InitiativeTracker>("plugin");
+    // Percepção, CD de Percepção e idiomas cadastrados no jogador (Configurações, Jogadores).
+    const infoJogador = (nome: string) => {
+        const p = plugin.data.players.find((j) => j.name === nome);
+        if (!p) return "";
+        const sinal = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
+        return [
+            p.perception != null ? `Percepção ${sinal(p.perception)}` : "",
+            p.perceptionDC != null ? `CD de Percepção ${p.perceptionDC}` : "",
+            p.languages ? `Idiomas: ${p.languages}` : ""
+        ]
+            .filter(Boolean)
+            .join("  |  ");
+    };
     // Ícones "i": toque ou clique mostra a explicação (o balão do mouse não existe no iPad).
     let ajudaPV = false;
     let ajudaCondicao = false;
@@ -112,6 +125,9 @@
                 <strong>
                     {creature.name + (creature.number ? " " + creature.number : "")}
                 </strong>
+                {#if creature.player && infoJogador(creature.name)}
+                    <span class="info-jogador">{infoJogador(creature.name)}</span>
+                {/if}
             {/each}
         </div>
         {#if $updateTarget == "hp"}
@@ -326,6 +342,10 @@
         text-align: center;
         gap: 0.25rem;
         margin: 0 0.5rem 0.25rem;
+    }
+    .info-jogador {
+        font-size: var(--font-ui-smaller);
+        color: var(--text-muted);
     }
     .updating-container {
         display: flex;

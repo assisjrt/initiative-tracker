@@ -48,6 +48,9 @@ export interface HomebrewCreature {
     static?: boolean;
     rollHP?: boolean;
     "statblock-link"?: string;
+    perception?: number;
+    perceptionDC?: number;
+    languages?: string;
 }
 export type Condition = {
     name: string;
