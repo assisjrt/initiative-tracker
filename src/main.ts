@@ -674,6 +674,15 @@ export default class InitiativeTracker extends Plugin {
         this.playerCreatures.delete(existing.name);
         this.playerCreatures.set(player.name, creature);
 
+        // grupos guardam o jogador pelo nome: renomear sem isso deixa o grupo apontando para ninguém
+        if (existing.name !== player.name) {
+            for (const party of this.data.parties ?? []) {
+                party.players = party.players.map((n) =>
+                    n === existing.name ? player.name : n
+                );
+            }
+        }
+
         const view = this.view;
         if (view) {
             tracker.updateState();

@@ -1068,6 +1068,14 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
     }
 }
 
+/** Livro Básico, Tabelas 2–1 a 2–3 (idiomas comuns, incomuns e secreto), em ordem alfabética. */
+const IDIOMAS = [
+    "Abissal", "Aklo", "Aquan", "Auran", "Celestial", "Comum", "Dracônico",
+    "Druídico", "Élfico", "Enânico", "Gnoll", "Gnômico", "Goblin", "Halfling",
+    "Ignan", "Infernal", "Jotun", "Língua-das-Sombras", "Necril", "Órquico",
+    "Silvestre", "Subterrâneo", "Terran"
+];
+
 class NewPlayerModal extends Modal {
     player: HomebrewCreature;
     saved: boolean;
@@ -1132,9 +1140,24 @@ class NewPlayerModal extends Modal {
             hpInput: InputValidate,
             modInput: InputValidate;
 
+        const textoOpcional = (
+            nome: string,
+            desc: string,
+            campo: "playerName" | "ancestry" | "characterClass"
+        ) =>
+            new Setting(contentEl)
+                .setName(nome)
+                .setDesc(desc)
+                .addText((t) => {
+                    t.setValue(this.player[campo] ?? "");
+                    t.onChange((v) => {
+                        this.player[campo] = v.trim() || undefined;
+                    });
+                });
+        textoOpcional("Jogador", "Quem joga com este personagem.", "playerName");
         new Setting(contentEl)
-            .setName("Nome")
-            .setDesc("Nome do jogador. Precisa ser único.")
+            .setName("Nome do Personagem")
+            .setDesc("Precisa ser único.")
             .addText((t) => {
                 nameInput = {
                     input: t.inputEl,
@@ -1157,6 +1180,8 @@ class NewPlayerModal extends Modal {
                     this.player.name = v;
                 });
             });
+        textoOpcional("Ancestralidade", "Ex.: Humano, Elfo, Anão.", "ancestry");
+        textoOpcional("Classe", "Ex.: Guerreiro, Mago, Ladino.", "characterClass");
         new Setting(contentEl)
             .setName("Nível")
             .setDesc("Nível do jogador.")
@@ -1258,13 +1283,43 @@ class NewPlayerModal extends Modal {
             "CD para criaturas que tentam enganar ou se esconder do jogador.",
             "perceptionDC"
         );
+        // Idiomas: marcados na lista do Livro Básico + regionais em texto livre; gravados como texto
+        // ("Aklo, Comum, Élfico"), que é o que a linha Idiomas da ficha lê.
+        const atuais = (this.player.languages ?? "")
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        const marcados = new Set(atuais.filter((i) => IDIOMAS.includes(i)));
+        let outros = atuais.filter((i) => !IDIOMAS.includes(i)).join(", ");
+        const gravaIdiomas = () => {
+            const todos = [
+                ...marcados,
+                ...outros.split(",").map((s) => s.trim()).filter(Boolean)
+            ].sort((a, b) => a.localeCompare(b, "pt-BR"));
+            this.player.languages = todos.length ? todos.join(", ") : undefined;
+        };
         new Setting(contentEl)
             .setName("Idiomas")
+            .setDesc("Idiomas comuns, incomuns e secretos.");
+        const grade = contentEl.createDiv("idiomas-grade");
+        for (const idioma of IDIOMAS) {
+            const rotulo = grade.createEl("label");
+            const caixa = rotulo.createEl("input", { type: "checkbox" });
+            caixa.checked = marcados.has(idioma);
+            rotulo.appendText(idioma);
+            caixa.onchange = () => {
+                caixa.checked ? marcados.add(idioma) : marcados.delete(idioma);
+                gravaIdiomas();
+            };
+        }
+        new Setting(contentEl)
+            .setName("Outros idiomas")
             .setDesc("Separados por vírgula.")
             .addText((t) => {
-                t.setValue(this.player.languages ?? "");
+                t.setValue(outros);
                 t.onChange((v) => {
-                    this.player.languages = v.trim() || undefined;
+                    outros = v;
+                    gravaIdiomas();
                 });
             });
 

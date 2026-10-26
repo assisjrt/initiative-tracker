@@ -19,6 +19,8 @@
         if (!p) return "";
         const sinal = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
         return [
+            [p.ancestry, p.characterClass].filter(Boolean).join(" "),
+            p.playerName ? `Jogador: ${p.playerName}` : "",
             p.perception != null ? `Percepção ${sinal(p.perception)}` : "",
             p.perceptionDC != null ? `CD de Percepção ${p.perceptionDC}` : "",
             p.languages ? `Idiomas: ${p.languages}` : ""

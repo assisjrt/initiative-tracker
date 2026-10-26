@@ -9,6 +9,17 @@ body {
     gap: 0.5rem;
 }
 
+.initiative-tracker-add-player-modal .idiomas-grade {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem 1rem;
+    padding: 0 0 0.75rem;
+}
+.initiative-tracker-add-player-modal .idiomas-grade label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
 .initiative-tracker-add-player-modal .has-error {
     border-color: var(--background-modifier-error-hover);
 }

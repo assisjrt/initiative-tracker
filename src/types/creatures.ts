@@ -51,6 +51,9 @@ export interface HomebrewCreature {
     perception?: number;
     perceptionDC?: number;
     languages?: string;
+    playerName?: string;
+    ancestry?: string;
+    characterClass?: string;
 }
 export type Condition = {
     name: string;

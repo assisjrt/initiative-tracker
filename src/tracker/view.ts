@@ -260,7 +260,18 @@ export class CreatureView extends ItemView {
         const jogador = this.plugin.data.players.find(
             (p) => p.name === creature.name
         );
-        return jogador ? { ...creature.creature, ...jogador } : creature.creature;
+        if (!jogador) return creature.creature;
+        // ancestralidade e classe viram etiquetas abaixo do nome, como nas fichas de PF2
+        // classes ancestralidade/classe dão uma cor para cada (snippet pf2-bestiario-new-order.css)
+        const tracos = [
+            jogador.ancestry && `<span class="ancestralidade">${jogador.ancestry}</span>`,
+            jogador.characterClass && `<span class="classe">${jogador.characterClass}</span>`
+        ].filter(Boolean);
+        return {
+            ...creature.creature,
+            ...jogador,
+            ...(tracos.length ? { traits: tracos } : {})
+        };
     }
 
     async renderEmbed(embedLink: string) {
